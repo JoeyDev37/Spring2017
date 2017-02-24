@@ -17,6 +17,7 @@ namespace GetShorty
             g.addEdge(0, 2, 0.8f);
 
             g.printGraph();
+            g.findBestPath(0);
 
             Console.Read();
         }
@@ -60,31 +61,66 @@ namespace GetShorty
                 }
             }
 
-            public void findBestPath()
+            public void findBestPath(int startingPoint)
             {
-                int[] prev;
-                int[] weight;
+                int[] prev = new int[adjacencyList.Count()];
+                float[] dist = new float[adjacencyList.Count()];
 
                 for(int i = 0; i < adjacencyList.Count(); i++)
                 {
-                    //prev[i] = -1;
-                    //weight[i] = null;
+                    dist[i] = -1;
+                }
+
+                dist[0] = 0;
+
+                PriorityQueue PQ = new PriorityQueue();
+                PQ.insertOrChange(startingPoint, 0);
+
+                while(!PQ.isEmpty())
+                {
+                    int u = PQ.deleteMax();
+
+                    foreach(Tuple<int, float> intersection in adjacencyList[u])
+                    {
+                        int v = intersection.Item1; //name
+                        float w = intersection.Item2; //weight
+                        if(dist[v] < dist[u] + w)
+                        {
+                            dist[v] = dist[u] * w;
+                            prev[v] = u;
+                            PQ.insertOrChange(v, dist[v]);
+                        }
+                    }
                 }
             }
         }
 
     }
 
-    class Intersection
+    class PriorityQueue
     {
-        public bool visited;
-        public int number;
+        //Binary Heap?
 
-        public Intersection(bool visited, int number)
+        public PriorityQueue()
         {
-            this.visited = visited;
-            this.number = number;
+
+        }
+
+        public void insertOrChange(int name, float dist)
+        {
+
+        }
+
+        public bool isEmpty()
+        {
+            return false;
+        }
+
+        public int deleteMax()
+        {
+            return 0;
         }
     }
 
+    
 }
