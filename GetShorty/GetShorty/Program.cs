@@ -13,62 +13,35 @@ namespace GetShorty
         public static int numEdges;
         static void Main(string[] args)
         {
-            //var sr = new StringReader("8 13\n" +
-            //                          "0 1 0.1\n" +
-            //                          "1 2 0.2\n" +
-            //                          "2 3 0.1\n" +
-            //                          "0 5 0.8\n" +
-            //                          "1 6 0.6\n" +
-            //                          "3 6 0.1\n" +
-            //                          "0 4 0.4\n" +
-            //                          "1 5 0.6\n" +
-            //                          "2 6 0.2\n" +
-            //                          "3 7 0.4\n" +
-            //                          "4 5 0.5\n" +
-            //                          "6 5 0.1\n" +
-            //                          "6 7 0.1\n" +
-            //                          "0 0\n");
-            //Console.SetIn(sr);
+            string startup;
 
-            //string startup;
+            startup = Console.ReadLine();
+            while (startup != "0 0")
+            {
+                string[] tokens = startup.Split(' ');
 
-            //startup = Console.ReadLine();
-            //while (startup != "0 0")
-            //{
-            //    string[] tokens = startup.Split(' ');
+                numIntersections = int.Parse(tokens[0]);
+                numEdges = int.Parse(tokens[1]);
 
-            //    numIntersections = int.Parse(tokens[0]);
-            //    numEdges = int.Parse(tokens[1]);
+                Graph g = new Graph(numIntersections);
 
-            //    Graph g = new Graph(numIntersections);
+                for (int i = 0; i < numEdges; i++)
+                {
+                    string info = Console.ReadLine();
+                    string[] infoTokens = info.Split(' ');
+                    int intersection1;
+                    int.TryParse(infoTokens[0], out intersection1);
+                    int intersection2;
+                    int.TryParse(infoTokens[1], out intersection2);
+                    float weight;
+                    float.TryParse(infoTokens[2], out weight);
 
-            //    for (int i = 0; i < numEdges; i++)
-            //    {
-            //        string info = Console.ReadLine();
-            //        string[] infoTokens = info.Split(' ');
-            //        int intersection1; 
-            //        int.TryParse(infoTokens[0], out intersection1);
-            //        int intersection2;
-            //        int.TryParse(infoTokens[1], out intersection2);
-            //        float weight;
-            //        float.TryParse(infoTokens[2], out weight);
+                    g.addEdge(intersection1, intersection2, weight);
+                }
+                Console.WriteLine(g.findBestPath());
 
-            //        g.addEdge(intersection1, intersection2, weight);
-            //    }
-            //    Console.WriteLine(g.findBestPath());
-
-            //    startup = Console.ReadLine();
-            //}
-
-            PriorityQueue pq = new PriorityQueue(6);
-            pq.insertOrChange(1, 10);
-            pq.insertOrChange(2, 7);
-            pq.insertOrChange(3, 6);
-            pq.insertOrChange(4, 10);
-            pq.insertOrChange(5, 17);
-            pq.insertOrChange(6, 15);
-            pq.popMax();
-            Console.Read();
+                startup = Console.ReadLine();
+            }
         }
 
         class Graph
@@ -126,9 +99,9 @@ namespace GetShorty
                 PriorityQueue PQ = new PriorityQueue(numIntersections);
                 PQ.insertOrChange(0, 1);
 
-                while(!PQ.isEmpty())
+                while(!PQ.IsEmpty())
                 {
-                    int u = PQ.popMax();
+                    int u = PQ.PopMax();
 
                     foreach(Tuple<int, float> intersection in adjacencyList[u])
                     {
@@ -197,106 +170,65 @@ namespace GetShorty
 
     class PriorityQueue
     {
-        Tuple<int, float>[] pq;
-        int currentSize = 0;
-
-        public PriorityQueue(int size)
+        private Tuple<int, float>[] heapArray;
+        private int maxSize;
+        private int currentSize;
+        public PriorityQueue(int maxHeapSize)
         {
-            pq = new Tuple<int, float>[size + 1];
+            maxSize = maxHeapSize;
+            currentSize = 0;
+            heapArray = new Tuple<int, float>[maxSize];
         }
-
-        public void insertOrChange(int name, float dist)
+        public bool IsEmpty()
         {
-            currentSize++;
-            int currentPosition = currentSize;
-            pq[currentPosition] = new Tuple<int, float>(name, dist);
-            int parent = currentPosition / 2;
-
-            if (currentPosition == 1)
-                return;
-
-            while (pq[currentPosition].Item2 > pq[parent].Item2)
-            {
-                swap(currentPosition, parent);
-                currentPosition = currentPosition / 2;
-                parent = currentPosition / 2;
-
-                if (currentPosition == 1)
-                    return;
-            }
-            
+            return currentSize == 0;
         }
-
-        public bool isEmpty()
+        public bool insertOrChange(int name, float dist)
         {
-            if (pq[1] == null)
-                return true;
-            else
+            if (currentSize == maxSize)
                 return false;
+            Tuple<int, float> newTuple = new Tuple<int, float>(name, dist);
+            heapArray[currentSize] = newTuple;
+            BubbleUp(currentSize++);
+            return true;
         }
-
-        public int popMax()
+        public void BubbleUp(int index)
         {
-            int root = 1;
-            int result = pq[root].Item1; //Save the value of the root
-            pq[root] = pq[currentSize]; //Put the last item at the root
-            pq[currentSize] = null; //Remove the last item
-
-            int currentPosition = root;
-            int leftChild = currentPosition * 2;
-            int rightChild = currentPosition * 2 + 1;
-
-            while (pq[currentPosition].Item2 < pq[leftChild].Item2 || pq[currentPosition].Item2 < pq[rightChild].Item2)
+            int parent = (index - 1) / 2;
+            Tuple<int, float> bottom = heapArray[index];
+            while (index > 0 && heapArray[parent].Item2 < bottom.Item2)
             {
-                if(pq[currentPosition].Item2 < pq[leftChild].Item2 && pq[currentPosition].Item2 < pq[rightChild].Item2)
-                {
-                    if (pq[leftChild].Item2 > pq[rightChild].Item2)
-                    {
-                        swap(currentPosition, leftChild);
-                        currentPosition = leftChild;
-                        leftChild = currentPosition * 2;
-                        rightChild = currentPosition * 2 + 1;
-                    }
-                        
-                    else
-                    {
-                        swap(currentPosition, rightChild);
-                        currentPosition = rightChild;
-                        leftChild = currentPosition * 2;
-                        rightChild = currentPosition * 2 + 1;
-                    }  
-                }
-                else
-                {
-                    if(pq[currentPosition].Item2 < pq[leftChild].Item2)
-                    {
-                        swap(currentPosition, leftChild);
-                        currentPosition = leftChild;
-                        leftChild = currentPosition * 2;
-                        rightChild = currentPosition * 2 + 1;
-                    }
-                    else   
-                    {
-                        swap(currentPosition, rightChild);
-                        currentPosition = rightChild;
-                        leftChild = currentPosition * 2;
-                        rightChild = currentPosition * 2 + 1;
-                    }
-                }
+                heapArray[index] = heapArray[parent];
+                index = parent;
+                parent = (parent - 1) / 2;
             }
-            
-            currentSize--;
-
-            return result;
+            heapArray[index] = bottom;
         }
-
-        private void swap(int index1, int index2)
+        public int PopMax() // Remove maximum value node
         {
-            Tuple<int, float> temp = pq[index1];
-            pq[index1] = pq[index2];
-            pq[index2] = temp;
+            Tuple<int, float> root = heapArray[0];
+            heapArray[0] = heapArray[--currentSize];
+            SinkDown(0);
+            return root.Item1;
+        }
+        public void SinkDown(int index)
+        {
+            int largerChild;
+            Tuple<int, float> top = heapArray[index];
+            while (index < currentSize / 2)
+            {
+                int leftChild = 2 * index + 1;
+                int rightChild = leftChild + 1;
+                if (rightChild < currentSize && heapArray[leftChild].Item2 < heapArray[rightChild].Item2)
+                    largerChild = rightChild;
+                else
+                    largerChild = leftChild;
+                if (top.Item2 >= heapArray[largerChild].Item2)
+                    break;
+                heapArray[index] = heapArray[largerChild];
+                index = largerChild;
+            }
+            heapArray[index] = top;
         }
     }
-
-
 }
