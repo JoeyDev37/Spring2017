@@ -9,85 +9,70 @@ namespace BankQueue
 {
     class Program
     {
-        private static SortedDictionary<int, SortedList<int, int>> people = new SortedDictionary<int, SortedList<int, int>>();
-        private static int targetTime;
-        private static int currentTime = 0;
         private static int totalMoney;
+        private static int[] schedule;
+        private static List<Person> people = new List<Person>();
+        private static int time;
+        private static int money;
         static void Main(string[] args)
         {
-            var sr = new StringReader("4 4\n" +
-                                      "5 0\n" +
-                                      "25 1\n" +
-                                      "10 2\n" +
-                                      "15 2\n");
-            Console.SetIn(sr);
+            Console.ReadLine();
 
-            string startupInfo = Console.ReadLine();
-            string[] startupTokens = startupInfo.Split(' ');
-            targetTime = int.Parse(startupTokens[1]);
+            schedule = new int[47];
              
             string s;
             while ((s = Console.ReadLine()) != null)
             {
                 string[] tokens = s.Split(' ');
-                int time = int.Parse(tokens[1]);
-                int money = int.Parse(tokens[0]);
+                time = int.Parse(tokens[1]);
+                money = int.Parse(tokens[0]);
+                Person p = new Person(money, time);
 
-                if (people.ContainsKey(time))
-                {
-                    people[time].Add(-money, money);
-                }
-                else
-                {
-                    SortedList<int, int> list = new SortedList<int, int>();
-                    list.Add(-money, money);
-                    people.Add(time, list);
-                }
+                people.Add(p);
             }
 
-            FindTotal();
-            Console.WriteLine(totalMoney);
-            Console.Read();
-        }
+            people.Sort();
 
-        private static void FindTotal()
-        {
-            while(currentTime != targetTime)
+            foreach(Person p in people)
             {
-                foreach (KeyValuePair<int, SortedList<int, int>> entry in people)
+                for (int i = p.time; i >= 0; i--)
                 {
-                    if (entry.Key < currentTime)
-                        continue;
-                    else
+                    if (schedule[i] < p.money)
                     {
-                        if(entry.Value.Count == 1)
-                        {
-                            totalMoney += entry.Value.First().Value;
-                            people.Remove(entry.Key);
-                            break;
-                        }
-                        else
-                        {
-                            totalMoney += entry.Value.First().Value;
-                            entry.Value.RemoveAt(0);
-                            break;
-                        }
+                        schedule[i] = p.money;
+                        break;
                     }
                 }
-                currentTime++;
             }
+
+            for(int i = 0; i < schedule.Count(); i++)
+            {
+                totalMoney += schedule[i];
+            }
+
+            Console.WriteLine(totalMoney);
         }
     }
 
-    //class Person
-    //{
-    //    public int money;
-    //    public int time;
+    class Person : IComparable<Person>
+    {
+        public int money;
+        public int time;
 
-    //    public Person(int money, int time)
-    //    {
-    //        this.money = money;
-    //        this.time = time;
-    //    }
-    //}
+        public Person(int money, int time)
+        {
+            this.money = money;
+            this.time = time;
+        }
+
+        public int CompareTo(Person other)
+        {
+            if (other.money < money)
+                return -1;
+            else if (other.money > money)
+                return 1;
+            else
+                return 0;
+        }
+    }
 }
