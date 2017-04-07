@@ -9,30 +9,62 @@ namespace UnderTheRainbow
 {
     class Program
     {
-        private static int[] hotels;
+        private static int totalRows;
+        private static int[] doorsToClose;
+        private static int[ , ] values;
+        private static int total = 0;
+        
         static void Main(string[] args)
         {
-            var sr = new StringReader("3\n" +
-                                      "0\n" +
-                                      "350\n" +
-                                      "450\n" +
-                                      "825\n");
+            var sr = new StringReader("6 4\n" +
+                                      "3 1\n" +
+                                      "2 1\n" +
+                                      "1 2\n" +
+                                      "1 3\n" +
+                                      "3 3\n" +
+                                      "0 0\n");
             Console.SetIn(sr);
 
-            int totalStops = int.Parse(Console.ReadLine()) + 1;
-            hotels = new int[totalStops];
+            string startup = Console.ReadLine();
+            string[] startupTokens = startup.Split(' ');
 
-            for(int i = 0; i < totalStops; i++)
+            int totalRows = int.Parse(startupTokens[0]);
+            int doorsToClose = int.Parse(startupTokens[1]);
+
+            values = new int[totalRows, 2];
+
+            for (int i = 0; i < totalRows; i++)
             {
-                hotels[i] = int.Parse(Console.ReadLine());
+                string s = Console.ReadLine();
+                string[] tokens = s.Split(' ');
+                values[i, 0] = int.Parse(tokens[0]);
+                values[i, 1] = int.Parse(tokens[1]);
             }
+
+            Console.WriteLine(maxValue(0, -1, doorsToClose));
 
             Console.Read();
         }
-
-        public static void penalty(int hotel)
+        private static int maxValue(int r, int unclosedRoom, int k)
         {
+            if(r == totalRows - 1)
+            {
+                return total;
+            }
+            if(unclosedRoom == -1)
+            {
+                total = values[r, 0] + values[r, 1] + maxValue(r + 1, -1, k);
+            }
+            if(unclosedRoom == 0)
+            {
 
+            }
+            if(unclosedRoom == 1)
+            {
+
+            }
         }
     }
+
+    
 }
